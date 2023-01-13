@@ -1,0 +1,131 @@
+import 'package:celloip_practical/service/job_list_service.dart';
+import 'package:flutter/material.dart';
+
+import '../model/list_data_model.dart';
+import '../utils/color.dart';
+
+class HomeView extends StatefulWidget {
+  const HomeView({Key? key}) : super(key: key);
+
+  @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  JobService jobService = JobService();
+  List<JobData>? jobList = [];
+  bool iaAPiCall = false;
+
+  @override
+  void initState() {
+    super.initState();
+    jobService.getJobService().then((value) {
+      setState(() {
+        jobList = value?.data;
+      });
+    });
+  }
+
+  jobCard(JobData jobData) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      margin: EdgeInsets.only(top: 15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+              child: Image.network(
+                "${jobData.avatar}",
+                height: 35,
+                width: 35,
+              ),
+              borderRadius: BorderRadius.circular(20)),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "${jobData.firstName} ${jobData.lastName}",
+                style: TextStyle(
+                    color: CommonColor.blackTextColor,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600),
+              ),
+              Text(
+                "${jobData.email}",
+                style: TextStyle(
+                    color: CommonColor.greyTextColor,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: jobList?.length != 0
+     ? Container(
+        color: CommonColor.lightBackgroundColor,
+        padding: EdgeInsets.only(left: 20, right: 20, top: 20),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Image.asset(
+                  "assets/images/signup man.png",
+                  height: 26,
+                  width: 26,
+                ),
+                Icon(Icons.notifications_none_outlined),
+              ],
+            ),
+            Container(
+              margin: EdgeInsets.symmetric(vertical: 14),
+              child: TextFormField(
+                decoration: InputDecoration(
+                  fillColor: CommonColor.darkGreenColor,
+                  filled: true,
+                  isDense: true,
+                  prefix: Icon(
+                    Icons.search,
+                    color: Colors.white,
+                  ),
+                  suffix: Icon(
+                    Icons.filter_list,
+                  color: Colors.white,
+                  ),
+                ),
+                cursorRadius: const Radius.circular(30),
+              ),
+            ),
+            Row(
+              children: [
+                Text("${jobList?.length} Job relevant to you",
+                    style: TextStyle(
+                        color: CommonColor.greyTextColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600)),
+              ],
+            ),
+            Expanded(
+              child: ListView.builder(
+                  itemCount: jobList?.length,
+                  itemBuilder: (context, index) {
+                    return jobCard(jobList![index]);
+                  }),
+            ),
+          ],
+        ),
+      )
+          : Center(child: CircularProgressIndicator(),),
+    );
+  }
+}
